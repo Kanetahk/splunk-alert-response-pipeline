@@ -19,7 +19,7 @@ Base.metadata.create_all(engine)
 
 @app.task
 def processar_alerta(search_name, result):
-    tipo, valor, tentativas = extrair_indicador(search_name, result)
+    tipo, valor, tentativas, severity = extrair_indicador(search_name, result)
 
     with Session(engine) as session:
         novo = Alerta(
@@ -27,13 +27,14 @@ def processar_alerta(search_name, result):
             indicator_type=tipo,
             indicator_value=valor,
             attempts=tentativas,
+            severity=severity,
         )
         session.add(novo)
         session.commit()
-        print(f"Saved Alert: {tipo}={valor}, attempts={tentativas}, id={novo.id}")
+        print(f"Saved Alert: {tipo}={valor}, attempts={tentativas}, severity={severity}, id={novo.id}")
 
-    assunto, corpo = gerar_notificacao(search_name, tipo, valor, tentativas)
-    enviar_email(assunto, corpo)
+    assunto, corpo, urgente = gerar_notificacao(search_name, tipo, valor, tentativas, severity)
+    enviar_email(assunto, corpo, urgente)
     print(f"Notification sent: {assunto}")
 
-    return f"{tipo}={valor} processed and notified"
+    return f"{tipo}={valor} processed and notified (severity={severity})"
