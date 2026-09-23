@@ -1,14 +1,13 @@
-def gerar_notificacao(search_name, tipo, valor, tentativas, severity):
+def gerar_notificacao(search_name, tipo, valor, tentativas):
     if search_name == "T1110 - Brute Force (sudo authentication)":
-        urgente = severity == "high"
-        assunto = f"[SOAR]{' [URGENT]' if urgente else ''} Brute force detected: {valor}"
+        assunto = f"[SOAR] Brute force detected: {valor}"
         corpo = (
             f"Alert: {search_name}\n"
-            f"Severity: {severity}\n"
             f"User: {valor}\n"
             f"Attempts: {tentativas}\n\n"
-            f"pam_faillock has already enforced the local lockout; this notification is for visibility only."
+            f"pam_faillock already blocked locally, this notification is only "
+            f"for visibility — there's no blocking action to take"
         )
-        return assunto, corpo, urgente
+        return assunto, corpo
 
-    raise ValueError(f"Alert type with no notification rule: {search_name}")
+    raise ValueError(f"Alert type without notification rule: {search_name}")
