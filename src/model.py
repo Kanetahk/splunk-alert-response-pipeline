@@ -11,3 +11,4 @@ class Alerta(Base):
     indicator_type: Mapped[str] = mapped_column()
     indicator_value: Mapped[str] = mapped_column()
     attempts: Mapped[int] = mapped_column()
+    severity: Mapped[str] = mapped_column()
