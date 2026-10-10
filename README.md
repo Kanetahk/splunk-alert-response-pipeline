@@ -1,12 +1,14 @@
 # Splunk Alert Response Pipeline
 
-**Bottom line:** this pipeline detects, persists, and notifies on real
-Splunk alerts from end to end, tested against actual firing alerts
-rather than just simulated payloads. The response branches by severity
-(emails flagged with high or normal severity), driven by the alert
-data itself rather than being hardcoded to a single path.
+**Bottom line:** this pipeline receives Splunk alerts through a
+webhook, persists them, and sends an email notification, with the
+response branching by severity (urgent or normal), driven by the alert
+data itself rather than hardcoded to a single path. The webhook
+delivery was confirmed with a real T1110 alert; persistence, branching
+and email were validated with simulated payloads, and a full run with
+a real alert is still pending.
 
-It's a lightweight automation layer: **Trigger >> Enrichment >> Decision >> Action**
+It's a lightweight automation layer: **Trigger >> Enrichment >> Decision >> Action**,
 built to plug into the home SOC lab
 ([soc-lab](https://github.com/Kanetahk/soc-lab)) and grow over time
 into a broader detection-and-response pipeline. It's intentionally not
@@ -14,7 +16,39 @@ called a SOAR yet — real orchestration across multiple alert types and
 remote action is still ahead, not something the current scope has
 earned.
 
-*Read this in: [Português](./locales/pt-BR/README.md)*
+*Read this in: [Português](./locales/pt-br/README.md)*
+
+## Quick start
+
+The whole lab, in order. Each `celery` and `uvicorn` command goes in its own terminal, started from the repo root.
+
+**First time only**, from the repo root (see [Setup](#setup)):
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+sudo systemctl enable --now valkey
+```
+
+The `.env` must be filled in before the first run.
+
+**Every time:**
+
+```bash
+# 1. soc-lab/ = Splunk
+docker compose up -d
+
+# 2. splunk-alert-response-pipeline/ = Celery worker
+source .venv/bin/activate
+cd src
+celery -A tasks worker --loglevel=info
+
+# 3. splunk-alert-response-pipeline/ = webhook
+source .venv/bin/activate
+cd src
+uvicorn api:app --host 0.0.0.0 --port 8001
+```
 
 ## Built with
 
@@ -22,19 +56,19 @@ Python 3.14 · FastAPI · Celery · Redis (Valkey) · SQLAlchemy · Pydantic
 
 ## Architecture
 
-- **Trigger** — FastAPI endpoint (`api.py`) receiving Splunk's native
+- **Trigger** FastAPI endpoint (`api.py`) receiving Splunk's native
   Webhook alert action, validated as a generic `{search_name, result}`
   shape (no assumption about specific alert fields).
-- **Enrichment** — `indicators.py` maps each alert type to its relevant
+- **Enrichment** `indicators.py` maps each alert type to its relevant
   indicator and severity (e.g. `user` + `severity` for local brute-force,
   `source_ip` for network-based alerts once implemented).
-- **Decision** — `actions.py` branches the response by severity: high
+- **Decision** `actions.py` branches the response by severity: high
   marks the notification urgent, medium sends it as a normal notice,
   decided from a field the SPL search computes (`eval severity=...`),
   not hardcoded per alert type.
-- **Persistence** — every processed alert, including its severity,
+- **Persistence** every processed alert, including its severity,
   is stored in SQLite via SQLAlchemy (`model.py`).
-- **Action** — currently email notification via `smtplib`
+- **Action** currently email notification via `smtplib`
   (`notifications.py`), with priority headers set for high-severity alerts.
   Remote/blocking action is out of scope for this project, no detection
   implemented so far has a network indicator to act on.
@@ -46,6 +80,9 @@ waiting for enrichment, persistence, or notification to complete.
 ## Project structure
 
 ```
+splunk-alert-response-pipeline/
+├── data/
+│   └── soar.db             # SQLite database (gitignored)
 ├── src/
 │   ├── api.py            # FastAPI webhook endpoint (Trigger)
 │   ├── tasks.py           # Celery task — orchestrates the whole pipeline
@@ -53,8 +90,11 @@ waiting for enrichment, persistence, or notification to complete.
 │   ├── model.py            # SQLAlchemy schema (Persistence)
 │   ├── actions.py          # Maps severity → response (Decision)
 │   └── notifications.py    # Email sending (smtplib)
-├── data/
-│   └── soar.db             # SQLite database (gitignored)
+├── locales/
+│   └── pt-br/
+│       └── README.md
+├── .gitignore
+├── README.md
 └── requirements.txt
 ```
 
@@ -75,7 +115,6 @@ Requires Redis or Valkey installed and running (e.g. `sudo pacman -S valkey && s
 
 Environment variables required (`.env`, never committed):
 ```
-GITHUB_TOKEN=
 EMAIL_SENDER=
 EMAIL_APP_PASSWORD=
 EMAIL_RECIPIENT=
@@ -125,9 +164,15 @@ see [soc-lab](https://github.com/Kanetahk/soc-lab).
   (network issue, provider rate limit), the Celery task fails without
   a retry policy configured.
 - **Single alert type implemented.** The schema and the
-  `indicators.py`/`actions.py`, pattern, including severity branching,
+  `indicators.py`/`actions.py` pattern, including severity branching,
   were designed to support multiple alert types, but only T1110 exercises
   them today. A network-based alert is the natural next step to validate
   the design generalizes beyond one case.
 - **Lab-scale, not production-scale.** SQLite, single Celery worker,
-  single-node Splunk, sufficient to prove the pipeline, not sized for real traffic.
+  single-node Splunk, sufficient to prove the pipeline, not sized for
+  real traffic.
+
+## Related projects
+
+- [soc-lab](https://github.com/Kanetahk/soc-lab) - Splunk detection engineering, where the alerts that trigger this pipeline are built
+- [siem-detection-simulator](https://github.com/Kanetahk/siem-detection-simulator) - synthetic log generator to test the detections that feed this pipeline (in development)
