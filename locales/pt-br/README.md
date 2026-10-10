@@ -33,7 +33,7 @@ sudo systemctl enable --now valkey
 
 O `.env` precisa estar preenchido antes da primeira execução.
 
-**Toda vez:**
+**Toda vez**
 
 ```bash
 # 1. soc-lab/ = Splunk
@@ -49,6 +49,8 @@ source .venv/bin/activate
 cd src
 uvicorn api:app --host 0.0.0.0 --port 8001
 ```
+
+Depois, abra o Splunk Web em <http://127.0.0.1:8000> (usuário `admin`, senha `SPLUNK_PASSWORD` do `.env` do soc-lab).
 
 ## Construído com
 
@@ -124,17 +126,6 @@ EMAIL_RECIPIENT=
 ```
 
 ## Uso
-
-De dentro de `src/`, suba os dois processos:
-
-```bash
-cd src
-celery -A tasks worker --loglevel=info
-```
-```bash
-cd src
-uvicorn api:app --host 0.0.0.0 --port 8001
-```
 
 Simule um alerta do Splunk sem precisar do próprio Splunk rodando:
 duas severidades, para ver a ramificação:
