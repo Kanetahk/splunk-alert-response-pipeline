@@ -22,16 +22,23 @@ escopo atual já mereça.
 
 O lab inteiro, em ordem. Cada comando `celery` e `uvicorn` vai no seu próprio terminal, iniciado na raiz do repositório.
 
-**Só na primeira vez**, a partir da raiz do repositório (veja a [Configuração](#configuração)):
+**Só na primeira vez**, a partir da raiz do repositório:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+sudo pacman -S valkey    # Celery broker: Valkey (or Redis)
 pip install -r requirements.txt
 sudo systemctl enable --now valkey
 ```
 
-O `.env` precisa estar preenchido antes da primeira execução.
+Crie um `.env` na raiz do repositório (nunca commitado) com:
+
+```
+EMAIL_SENDER=
+EMAIL_APP_PASSWORD=
+EMAIL_RECIPIENT=
+```
 
 **Toda vez**
 
@@ -107,23 +114,6 @@ splunk-alert-response-pipeline/
 
 [T1110 - Brute Force (autenticação via sudo)](https://github.com/Kanetahk/soc-lab/blob/main/detections/T1110-sudo-bruteforce.md),
 implementada no repositório irmão [soc-lab](https://github.com/Kanetahk/soc-lab).
-
-## Configuração
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Requer Redis ou Valkey instalado e rodando (ex: `sudo pacman -S valkey && sudo systemctl enable --now valkey` no Arch).
-
-Variáveis de ambiente necessárias (`.env`, nunca commitado):
-```
-EMAIL_SENDER=
-EMAIL_APP_PASSWORD=
-EMAIL_RECIPIENT=
-```
 
 ## Uso
 
