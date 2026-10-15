@@ -13,7 +13,9 @@ load_dotenv()
 app = Celery('tasks', broker='redis://127.0.0.1:6379/0')
 
 caminho_atual = os.path.dirname(os.path.abspath(__file__))  # src/
-caminho_banco = os.path.join(caminho_atual, '..', 'data', 'soar.db')
+pasta_data = os.path.join(caminho_atual, '..', 'data')
+os.makedirs(pasta_data, exist_ok=True)
+caminho_banco = os.path.join(pasta_data, 'soar.db')
 engine = create_engine(f"sqlite:///{caminho_banco}")
 Base.metadata.create_all(engine)
 

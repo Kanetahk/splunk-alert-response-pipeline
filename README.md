@@ -18,11 +18,11 @@ earned.
 
 *Read this in: [Português](./locales/pt-br/README.md)*
 
-## Quick start
+## Start
 
 The whole lab, in order. Each `celery` and `uvicorn` command goes in its own terminal, started from the repo root.
 
-**First time only**, from the repo root:
+**Start**, from the repo root:
 
 ```bash
 python -m venv .venv
@@ -91,7 +91,7 @@ waiting for enrichment, persistence, or notification to complete.
 ```
 splunk-alert-response-pipeline/
 ├── data/
-│   └── soar.db             # SQLite database (gitignored)
+│   └── soar.db             # SQLite database, created on first run (gitignored)
 ├── src/
 │   ├── api.py            # FastAPI webhook endpoint (Trigger)
 │   ├── tasks.py           # Celery task — orchestrates the whole pipeline

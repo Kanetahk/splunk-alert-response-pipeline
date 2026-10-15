@@ -22,7 +22,7 @@ escopo atual já mereça.
 
 O lab inteiro, em ordem. Cada comando `celery` e `uvicorn` vai no seu próprio terminal, iniciado na raiz do repositório.
 
-**Só na primeira vez**, a partir da raiz do repositório:
+**primeiro-uso**, a partir da raiz do repositório:
 
 ```bash
 python -m venv .venv
@@ -40,7 +40,7 @@ EMAIL_APP_PASSWORD=
 EMAIL_RECIPIENT=
 ```
 
-**Toda vez**
+**Sempre**
 
 ```bash
 # 1. soc-lab/ = Splunk
@@ -94,7 +94,7 @@ enriquecimento, a persistência ou a notificação terminarem.
 ```
 splunk-alert-response-pipeline/
 ├── data/
-│   └── soar.db             # Banco SQLite (ignorado pelo git)
+│   └── soar.db             # Banco SQLite, criado na primeira execução (ignorado pelo git)
 ├── src/
 │   ├── api.py            # Endpoint FastAPI do webhook (Trigger)
 │   ├── tasks.py           # Task do Celery — orquestra o pipeline inteiro
