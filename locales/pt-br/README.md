@@ -16,7 +16,7 @@ ainda não se chama SOAR — orquestração de verdade, cobrindo múltiplos
 tipos de alerta e ação remota, ainda está por vir, não é algo que o
 escopo atual já mereça.
 
-*Read this in: [English](./README.md)*
+*Read this in: [English](../../README.md)*
 
 ## Primeiro-uso
 
