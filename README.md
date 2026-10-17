@@ -18,7 +18,7 @@ earned.
 
 *Read this in: [Português](./locales/pt-br/README.md)*
 
-## Start
+## First-use
 
 The whole lab, in order. Each `celery` and `uvicorn` command goes in its own terminal, started from the repo root.
 

@@ -18,11 +18,11 @@ escopo atual já mereça.
 
 *Read this in: [English](./README.md)*
 
-## Início rápido
+## Primeiro-uso
 
 O lab inteiro, em ordem. Cada comando `celery` e `uvicorn` vai no seu próprio terminal, iniciado na raiz do repositório.
 
-**primeiro-uso**, a partir da raiz do repositório:
+**Início**, a partir da raiz do repositório:
 
 ```bash
 python -m venv .venv
